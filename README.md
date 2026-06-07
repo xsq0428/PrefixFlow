@@ -1,17 +1,24 @@
-# PHP 卡密识别系统
+# 🔑 PrefixFlow · 卡密识别系统
 
-一个基于 PHP 7.4+ 和 MySQL 5.6+ 的卡密前缀识别系统，支持用户自助查询和后台管理。
+[![GitHub Release](https://img.shields.io/github/v/release/xsq0428/PrefixFlow?style=flat-square)](https://github.com/xsq0428/PrefixFlow/releases)
+[![License](https://img.shields.io/github/license/xsq0428/PrefixFlow?style=flat-square)](LICENSE)
+[![PHP](https://img.shields.io/badge/PHP-7.4%2B-blue?style=flat-square)](https://php.net)
+[![PHP 8.2](https://img.shields.io/badge/PHP-8.2%20tested-purple?style=flat-square)](https://php.net)
 
-## 功能特性
+**前缀驱动的智能卡密识别系统** — 通过最长前缀匹配算法，自动识别卡密归属产品并返回下载链接。
 
-### 用户端
+---
+
+## ✨ 功能特性
+
+### 🌐 用户端
 - ✅ 公开查询页面，无需登录
 - ✅ 输入卡密自动识别产品前缀
 - ✅ 显示产品名称和下载链接
 - ✅ 支持备用下载链接
 - ✅ 响应式设计，兼容移动端
 
-### 后台管理
+### 🛠️ 后台管理
 - ✅ 管理员认证（会话管理）
 - ✅ 登录失败锁定机制
 - ✅ 产品管理（CRUD）
