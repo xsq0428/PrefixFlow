@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>卡密识别系统</title>
+    <title>耀星系列查询</title>
     <style>
         * {
             margin: 0;
@@ -133,6 +133,99 @@
             margin-top: 15px;
         }
         
+        .download-item {
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #e8e8e8;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+        
+        .download-item:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+        
+        .download-label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .download-url {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #ffffff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .download-item:hover .download-url {
+            border-color: #667eea;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.1);
+        }
+        
+        .download-url a {
+            color: #4a90e2;
+            text-decoration: none;
+            word-break: break-all;
+            font-size: 13px;
+            line-height: 1.4;
+            flex: 1;
+            transition: color 0.3s ease;
+        }
+        
+        .download-url a:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+        
+        .copy-btn {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+            min-width: 60px;
+            letter-spacing: 0.5px;
+        }
+        
+        .copy-btn:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+        }
+        
+        .copy-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+        }
+        
+        .copy-btn:disabled {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            cursor: default;
+        }
+        
+        .copy-btn:disabled:hover {
+            transform: none;
+            box-shadow: 0 2px 6px rgba(46, 204, 113, 0.3);
+        }
+        
         .download-btn {
             display: inline-block;
             padding: 10px 20px;
@@ -184,22 +277,13 @@
             color: #999;
             font-size: 12px;
         }
-        
-        .admin-link {
-            color: #999;
-            text-decoration: none;
-        }
-        
-        .admin-link:hover {
-            color: #667eea;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">
-            <h1>卡密识别系统</h1>
-            <p>输入您的卡密，快速获取产品下载链接</p>
+            <h1>耀星系列查询</h1>
+            <p>输入您的卡密，获取产品下载信息</p>
         </div>
         
         <form id="queryForm">
@@ -226,7 +310,7 @@
         </div>
         
         <div class="footer">
-            <a href="/admin/login.php" class="admin-link">管理后台</a>
+            <p>&copy; 2026 耀星系列查询</p>
         </div>
     </div>
     
@@ -268,15 +352,23 @@
                     const product = data.data.product;
                     let html = `<div class="product-name">${escapeHtml(product.name)}</div>`;
                     html += '<div class="download-links">';
-                    html += `<a href="${escapeHtml(product.download_url)}" class="download-btn" target="_blank">下载</a>`;
+                    html += `<div class="download-item">`;
+                    html += `<span class="download-label">主下载链接</span>`;
+                    html += `<div class="download-url">${escapeHtml(product.download_url)}</div>`;
+                    html += `<button class="copy-btn" onclick="copyToClipboard(this, '${escapeHtml(product.download_url).replace(/'/g, "\\'")}')">复制</button>`;
+                    html += `</div>`;
                     
                     if (product.backup_url) {
-                        html += `<a href="${escapeHtml(product.backup_url)}" class="download-btn backup" target="_blank">备用下载</a>`;
+                        html += `<div class="download-item">`;
+                        html += `<span class="download-label">备用下载链接</span>`;
+                        html += `<div class="download-url">${escapeHtml(product.backup_url)}</div>`;
+                        html += `<button class="copy-btn" onclick="copyToClipboard(this, '${escapeHtml(product.backup_url).replace(/'/g, "\\'")}')">复制</button>`;
+                        html += `</div>`;
                     }
                     
                     html += '</div>';
                     
-                    showResult('success', '匹配成功', html);
+                    showResult('success', '查询成功', html);
                 } else {
                     showResult('error', data.message || '未找到匹配的产品');
                 }
@@ -299,6 +391,46 @@
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+        
+        function copyToClipboard(button, text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = button.textContent;
+                    button.textContent = '已复制!';
+                    button.style.background = '#2ecc71';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.style.background = '';
+                    }, 1500);
+                }).catch(() => {
+                    fallbackCopy(text, button);
+                });
+            } else {
+                fallbackCopy(text, button);
+            }
+        }
+        
+        function fallbackCopy(text, button) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                const originalText = button.textContent;
+                button.textContent = '已复制!';
+                button.style.background = '#2ecc71';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.style.background = '';
+                }, 1500);
+            } catch (err) {
+                alert('复制失败，请手动复制');
+            }
+            document.body.removeChild(textarea);
         }
         
         // 支持回车键查询

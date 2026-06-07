@@ -70,9 +70,11 @@ try {
     $matcher = new PrefixMatcher();
     
     // 如果缓存未命中，从数据库刷新
-    if ($matcher->getAllPrefixes() === null) {
+    if ($matcher->getAllPrefixes() === null || count($matcher->getAllPrefixes()) === 0) {
         $db = Database::getInstance();
         $matcher->refresh($db);
+        // 重新加载刷新后的数据
+        $matcher->loadFromCache();
     }
     
     $product = $matcher->match($key);
