@@ -167,6 +167,7 @@
             border-radius: 8px;
             border: 1px solid #e9ecef;
             transition: all 0.3s ease;
+            min-width: 0;
         }
         
         .download-item:hover .download-url {
@@ -181,6 +182,10 @@
             font-size: 13px;
             line-height: 1.4;
             flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
             transition: color 0.3s ease;
         }
         
