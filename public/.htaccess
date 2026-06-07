@@ -1,0 +1,26 @@
+# Apache 配置文件
+# 放置在 public/ 目录下
+
+# 启用重写引擎
+RewriteEngine On
+
+# 设置基础目录
+RewriteBase /
+
+# 阻止访问敏感文件
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# API 请求重写到 api 目录
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ /api/$1 [L]
+
+# 默认首页
+DirectoryIndex index.php
+
+# 美化 URL（可选）
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.*)$ index.php/$1 [L,QSA]

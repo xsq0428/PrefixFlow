@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>完整功能测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 30px; color: #333; }
+        .section { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .section h2 { margin-bottom: 15px; color: #333; font-size: 18px; }
+        .test-item { margin-bottom: 15px; }
+        .test-item label { display: block; margin-bottom: 5px; font-weight: 600; color: #666; font-size: 14px; }
+        .test-item input, .test-item select { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; margin-right: 5px; margin-bottom: 5px; }
+        .btn-primary { background: #4a90e2; color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-success { background: #2ecc71; color: white; }
+        .result { padding: 10px; background: #f8f9fa; border-radius: 6px; margin-top: 10px; font-family: monospace; font-size: 13px; white-space: pre-wrap; }
+        .result.success { background: #d4edda; color: #155724; }
+        .result.error { background: #f8d7da; color: #721c24; }
+        .card-list { display: grid; gap: 15px; margin-top: 15px; }
+        .card { background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+        .card-title { font-size: 18px; font-weight: 600; color: #333; }
+        .card-status { padding: 6px 14px; border-radius: 14px; font-size: 13px; font-weight: 600; }
+        .card-status.enabled { background: #d4edda; color: #155724; }
+        .card-status.disabled { background: #f8d7da; color: #721c24; }
+        .card-footer { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 2px solid #f0f0f0; }
+        .card-footer button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .btn-edit { background: #4a90e2; color: white; }
+        .btn-delete { background: #fff5f5; color: #dc3545; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: 12px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .modal-footer button { padding: 10px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; }
+        .btn-cancel { background: #e0e0e0; color: #333; border: none; }
+        .btn-save { background: #4a90e2; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>完整功能测试</h1>
+        
+        <!-- 产品列表 -->
+        <div class="section">
+            <h2>产品列表</h2>
+            <button class="btn btn-success" onclick="loadProducts()">刷新列表</button>
+            <button class="btn btn-primary" onclick="openProductModal()">+ 添加产品</button>
+            <div class="card-list" id="productsCardList"></div>
+        </div>
+        
+        <!-- 前缀规则列表 -->
+        <div class="section">
+            <h2>前缀规则列表</h2>
+            <button class="btn btn-success" onclick="loadPrefixes()">刷新列表</button>
+            <button class="btn btn-primary" onclick="openPrefixModal()">+ 添加规则</button>
+            <div class="card-list" id="prefixesCardList"></div>
+        </div>
+    </div>
+    
+    <!-- 产品模态框 -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <h2 id="productModalTitle">添加产品</h2>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label>产品名称 *</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>描述</label>
+                    <textarea id="productDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>下载链接 *</label>
+                    <input type="url" id="productDownloadUrl" required>
+                </div>
+                <div class="form-group">
+                    <label>备用下载链接</label>
+                    <input type="url" id="productBackupUrl">
+                </div>
+                <div class="form-group">
+                    <label>状态</label>
+                    <select id="productStatus">
+                        <option value="1">启用</option>
+                        <option value="0">禁用</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeProductModal()">取消</button>
+                    <button type="submit" class="btn-save">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 前缀规则模态框 -->
+    <div id="prefixModal" class="modal">
+        <div class="modal-content">
+            <h2 id="prefixModalTitle">添加前缀规则</h2>
+            <form id="prefixForm">
+                <input type="hidden" id="prefixId">
+                <div class="form-group">
+                    <label>前缀 *</label>
+                    <input type="text" id="prefixValue" required placeholder="如：ABC, PROD, TRIAL">
+                </div>
+                <div class="form-group">
+                    <label>关联产品 *</label>
+                    <select id="prefixProduct" required></select>
+                </div>
+                <div class="form-group">
+                    <label>优先级</label>
+                    <input type="number" id="prefixPriority" value="0">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closePrefixModal()">取消</button>
+                    <button type="submit" class="btn-save">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let products = [];
+        let prefixes = [];
+        let productsForSelect = [];
+        
+        // 事件委托
+        document.addEventListener('click', function(e) {
+            const editProductBtn = e.target.closest('[data-action="edit-product"]');
+            const deleteProductBtn = e.target.closest('[data-action="delete-product"]');
+            const editPrefixBtn = e.target.closest('[data-action="edit-prefix"]');
+            const deletePrefixBtn = e.target.closest('[data-action="delete-prefix"]');
+            
+            if (editProductBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                openProductModal(parseInt(editProductBtn.dataset.id));
+            }
+            
+            if (deleteProductBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteProduct(parseInt(deleteProductBtn.dataset.id));
+            }
+            
+            if (editPrefixBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                openPrefixModal(parseInt(editPrefixBtn.dataset.id));
+            }
+            
+            if (deletePrefixBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                deletePrefix(parseInt(deletePrefixBtn.dataset.id));
+            }
+        });
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function loadProducts() {
+            const response = await fetch('http://localhost/api/admin/products.php');
+            const data = await response.json();
+            
+            if (data.success) {
+                products = data.data;
+                document.getElementById('productsCardList').innerHTML = data.data.map(product => `
+                    <div class="card" data-product-id="${product.id}">
+                        <div class="card-header">
+                            <div class="card-title">${escapeHtml(product.name)}</div>
+                            <span class="card-status ${product.status == 1 ? 'enabled' : 'disabled'}">${product.status == 1 ? '启用' : '禁用'}</span>
+                        </div>
+                        <div class="card-body">
+                            <p>ID: ${product.id}</p>
+                            <p>描述: ${escapeHtml(product.description || '-')}</p>
+                            <p>下载链接: <a href="${escapeHtml(product.download_url)}" target="_blank">查看</a></p>
+                            <p>关联规则: ${product.rule_count} 个</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-edit" data-action="edit-product" data-id="${product.id}">编辑</button>
+                            <button class="btn-delete" data-action="delete-product" data-id="${product.id}">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        async function loadPrefixes() {
+            const response = await fetch('http://localhost/api/admin/prefixes.php');
+            const data = await response.json();
+            
+            if (data.success) {
+                prefixes = data.data;
+                document.getElementById('prefixesCardList').innerHTML = data.data.map(rule => `
+                    <div class="card" data-prefix-id="${rule.id}">
+                        <div class="card-header">
+                            <div class="card-title"><code>${escapeHtml(rule.prefix)}</code></div>
+                            <span class="card-status enabled">优先级 ${rule.priority}</span>
+                        </div>
+                        <div class="card-body">
+                            <p>ID: ${rule.id}</p>
+                            <p>关联产品: ${escapeHtml(rule.product_name || '已删除')}</p>
+                            <p>创建时间: ${rule.created_at}</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn-edit" data-action="edit-prefix" data-id="${rule.id}">编辑</button>
+                            <button class="btn-delete" data-action="delete-prefix" data-id="${rule.id}">删除</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function openProductModal(id = null) {
+            const modal = document.getElementById('productModal');
+            if (!modal) {
+                alert('错误：模态框元素未找到');
+                return;
+            }
+            modal.classList.add('show');
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productModalTitle').textContent = id ? '编辑产品' : '添加产品';
+            
+            if (id) {
+                const product = products.find(p => p.id == id);
+                if (product) {
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productDescription').value = product.description || '';
+                    document.getElementById('productDownloadUrl').value = product.download_url;
+                    document.getElementById('productBackupUrl').value = product.backup_url || '';
+                    document.getElementById('productStatus').value = product.status;
+                }
+            }
+        }
+        
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('show');
+        }
+        
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('productId').value;
+            const data = {
+                name: document.getElementById('productName').value,
+                description: document.getElementById('productDescription').value,
+                download_url: document.getElementById('productDownloadUrl').value,
+                backup_url: document.getElementById('productBackupUrl').value,
+                status: parseInt(document.getElementById('productStatus').value),
+            };
+            
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `http://localhost/api/admin/products.php?id=${id}` : 'http://localhost/api/admin/products.php';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('保存成功');
+                closeProductModal();
+                loadProducts();
+            } else {
+                alert('保存失败：' + result.error);
+            }
+        });
+        
+        async function deleteProduct(id) {
+            if (!confirm('确定要删除这个产品吗？')) {
+                return;
+            }
+            
+            const response = await fetch(`http://localhost/api/admin/products.php?id=${id}`, { method: 'DELETE' });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('删除成功');
+                loadProducts();
+            } else {
+                alert('删除失败：' + result.error);
+            }
+        }
+        
+        async function openPrefixModal(id = null) {
+            const modal = document.getElementById('prefixModal');
+            if (!modal) {
+                alert('错误：模态框元素未找到');
+                return;
+            }
+            modal.classList.add('show');
+            document.getElementById('prefixForm').reset();
+            document.getElementById('prefixId').value = '';
+            document.getElementById('prefixModalTitle').textContent = id ? '编辑前缀规则' : '添加前缀规则';
+            
+            if (!productsForSelect.length) {
+                const response = await fetch('http://localhost/api/admin/products.php');
+                const data = await response.json();
+                if (data.success) {
+                    productsForSelect = data.data;
+                }
+            }
+            
+            if (productsForSelect.length) {
+                document.getElementById('prefixProduct').innerHTML = productsForSelect.map(p => 
+                    `<option value="${p.id}">${escapeHtml(p.name)}</option>`
+                ).join('');
+            }
+            
+            if (id) {
+                const rule = prefixes.find(r => r.id == id);
+                if (rule) {
+                    document.getElementById('prefixId').value = rule.id;
+                    document.getElementById('prefixValue').value = rule.prefix;
+                    document.getElementById('prefixProduct').value = rule.product_id;
+                    document.getElementById('prefixPriority').value = rule.priority;
+                }
+            }
+        }
+        
+        function closePrefixModal() {
+            document.getElementById('prefixModal').classList.remove('show');
+        }
+        
+        document.getElementById('prefixForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('prefixId').value;
+            const data = {
+                prefix: document.getElementById('prefixValue').value,
+                product_id: parseInt(document.getElementById('prefixProduct').value),
+                priority: parseInt(document.getElementById('prefixPriority').value),
+            };
+            
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `http://localhost/api/admin/prefixes.php?id=${id}` : 'http://localhost/api/admin/prefixes.php';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('保存成功');
+                closePrefixModal();
+                loadPrefixes();
+            } else {
+                alert('保存失败：' + result.error);
+            }
+        });
+        
+        async function deletePrefix(id) {
+            if (!confirm('确定要删除这个前缀规则吗？')) {
+                return;
+            }
+            
+            const response = await fetch(`http://localhost/api/admin/prefixes.php?id=${id}`, { method: 'DELETE' });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('删除成功');
+                loadPrefixes();
+            } else {
+                alert('删除失败：' + result.error);
+            }
+        }
+        
+        // 初始加载
+        loadProducts();
+        loadPrefixes();
+    </script>
+</body>
+</html>
