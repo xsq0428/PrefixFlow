@@ -178,14 +178,12 @@
         .download-url a {
             color: #4a90e2;
             text-decoration: none;
-            word-break: break-all;
-            font-size: 13px;
-            line-height: 1.4;
+            font-size: 12px;
+            line-height: 1.5;
             flex: 1;
             min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            word-break: break-all;
+            white-space: normal;
             transition: color 0.3s ease;
         }
         
