@@ -39,13 +39,11 @@ class FileCache
             return null;
         }
         
-        // 检查缓存是否过期
         $fileMtime = filemtime($this->cacheFile);
         if (time() - $fileMtime > $this->ttl) {
             return null;
         }
         
-        // 加载缓存文件
         try {
             $data = require $this->cacheFile;
             if (!is_array($data) || !isset($data['version'])) {

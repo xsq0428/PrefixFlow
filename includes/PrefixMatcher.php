@@ -19,6 +19,24 @@ class PrefixMatcher
     {
         $this->cache = new FileCache();
         $this->loadFromCache();
+        
+        if ($this->prefixes === null || $this->products === null) {
+            $this->initFromDatabase();
+        }
+    }
+    
+    /**
+     * 从数据库初始化数据（当缓存不可用时）
+     */
+    private function initFromDatabase(): void
+    {
+        try {
+            require_once __DIR__ . '/Database.php';
+            $db = Database::getInstance();
+            $this->refresh($db);
+        } catch (Exception $e) {
+            error_log('PrefixMatcher init from database failed: ' . $e->getMessage());
+        }
     }
     
     /**
@@ -87,6 +105,10 @@ class PrefixMatcher
      */
     public function match(string $key): ?array
     {
+        if ($this->prefixes === null || $this->products === null) {
+            $this->initFromDatabase();
+        }
+        
         if ($this->prefixes === null || $this->products === null) {
             return null;
         }
